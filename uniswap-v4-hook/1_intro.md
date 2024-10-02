@@ -105,7 +105,7 @@ contract SampleHook is BaseHook  {
 }
 ```
 
-从例子中我们可以看到, Hook是一个合约, 而且继承于BaseHook. BaseHook要求必须重载getHookPermissions函数, 它决定了这个Hook要钩哪几个流程中. 可以钩住的地方有: 
+从例子中我们可以看到，Hook是一个合约，而且继承于BaseHook。其中，BaseHook的getHookPermissions函数是必须重载的。通过这个函数，可以设置在哪些流程中添加逻辑：
 
 * 初始化前后
 * 添加流动性前后
