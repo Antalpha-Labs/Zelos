@@ -161,7 +161,7 @@ Hook极大的扩展了流动性池的业务范围, 可以实现很多具备想�
 
 因此, 只要想象力足够, 完全可以依托V4平台, 打造出自己的交易所, 甚至发明新的衍生品类型. 而V4可以提供流动性管理和交易的支持, 减少构建新项目的成本. 现在已经有很多团队开发了自己的Hook.  
 
-![uniswaphooks.com](1_介绍_图1.png)
+![uniswaphooks.com](../imgs/hook_1_img1.png)
 
 但由于V4还没有发布, 线上的资源还很少, 连API文档都没发布. 如果想要进一步了解, 可以关注一下[官方的介绍](https://docs.uniswap.org/contracts/v4/overview), 以及[官方的例子](https://www.v4-by-example.org/), 另外, 我们也翻译了[正式版白皮书](https://mp.weixin.qq.com/s/YbEgKI0z12JLLP1EdXxCEA).
 

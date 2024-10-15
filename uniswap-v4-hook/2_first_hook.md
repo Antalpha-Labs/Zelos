@@ -302,7 +302,7 @@ function setUp() public {
 }
 ```
 
-然后是测试函数，必须以test_开头.
+然后是测试函数，必须以test_开头。在这个函数中，我们通过swap交易来触发Hook的执行。
 
 ```solidity
 function test_swap() public {
@@ -344,5 +344,3 @@ forge test -vv
 - [Uniswap 例子](https://www.v4-by-example.org/)
 - [Periphery 合约](https://github.com/Uniswap/v4-periphery)
 - [Core 合约](https://github.com/Uniswap/v4-core)
-
-希望这篇教程能够帮助您在实际项目中使用 Uniswap V4 Hook，实现更丰富的功能和自定义逻辑。
