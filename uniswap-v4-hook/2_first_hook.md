@@ -256,7 +256,7 @@ contract CountingHookTest is Test，Deployers {
 * pool_key，pool_id: 我们将会创建一个虚拟的pool供测试使用。
 * token0，token1: 这是pool的交易对所涉及的两个token。
 
-接下来时setup()函数，它会在每个测试函数执行的时候先执行。我会将每句话的作用注释到代码中: 
+接下来是setup()函数，它会在每个测试函数执行的时候先执行。我会将每句话的作用注释到代码中: 
 
 ```solidity
 function setUp() public {
