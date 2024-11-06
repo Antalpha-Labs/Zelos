@@ -13,9 +13,11 @@
 ## Delta中性策略
 
 Delta中性策略可以解决这个问题。Delta是量化金融中常用的一个希腊值，含义是每当标的价格变化1个单位，衍生品的价格变化多少，用公式表示：
+
 $$
 Delta = \frac {衍生品的价格变化}{标的价格变化}
 $$
+
 比如，当我们说ETH-USDT池中，一个LP的Delta为0.5，那说明当ETH价格变化为1的时候，每单位流动性变化为0.5。如下表所示，如果我们投入了相当于5 ETH的流动性。当Delta=0.5时，如果ETH上涨1u，那么每单位流动性对应增加0.5u，因此，流动性对应的净值为10002.5u。
 
 | 时间     | ETH价格 | 流动性对应净值       |
@@ -32,12 +34,13 @@ Delta中性就是指让投资组合的Delta等于0.此时不管标的价格怎�
 ## Uniswap V3流动性的Delta
 
 实现Delta中性的关键，在于计算出投入流动性和借出ETH的比例。要达到这一点，首先要计算每单位流动性的Delta。在Uniswap V3中，每单位的净值可以用下面的公式计算。
+
 $$
 V=
 \begin{cases}
-liq \times P(\frac{1}{\sqrt{L}}-\frac{1}{\sqrt{H}}), P<L \\
-liq \times (2\sqrt{P}-\sqrt{L}-\frac{P}{\sqrt{H}}), L<P<H \\
-liq \times (\sqrt{H}-\sqrt{L}), H<P
+liq \times P(\frac{1}{\sqrt{L}}-\frac{1}{\sqrt{H}}), P < L \\
+liq \times (2\sqrt{P}-\sqrt{L}-\frac{P}{\sqrt{H}}), L < P < H \\
+liq \times (\sqrt{H}-\sqrt{L}), H < P
 \end{cases}
 $$
 
@@ -55,18 +58,22 @@ $$
 另外这里的价格是除以初始价格后的归一化价格，比如当前价格P0=2000，PH=2500，PL=1500，那么H=2500/2000=1。25，L=1500/2000=0.75，如果一段时间后当前价格PT=2100，那么P=2100/2000=1.05。
 
 Delta是衍生品价格变化的指标，相当于对价格求导。因此，通过对上式求导可以得到Uniswap V3的Delta
+
 $$
 \frac{ \partial V}{\partial P} = 
 \begin{cases}
-liq \times (\frac{1}{\sqrt{L}}-\frac{1}{\sqrt{H}}), P<L \\
-liq \times (\frac{1}{\sqrt{P}}-\frac{1}{\sqrt{H}}), L<P<H \\
-0, H<P
+liq \times (\frac{1}{\sqrt{L}}-\frac{1}{\sqrt{H}}), P < L \\
+liq \times (\frac{1}{\sqrt{P}}-\frac{1}{\sqrt{H}}), L  < P < H \\
+0, H < P
 \end{cases}
 $$
+
 当P在价格范围内，且假定P=1(初始价格为1)的情况下，可以化简为:
+
 $$
 \frac{1}{2-\frac{1}{\sqrt{H}}-\sqrt{L}} \times (\frac{1}{\sqrt{1}}-\frac{1}{\sqrt{H}})
 $$
+
 但是要注意，Uniswap V3的Delta是一个随价格变化的复杂函数。如下图所示。因此单纯的Delta对冲无法做到净值完全不波动，只能做到在一定的价格范围内，净值波动远小于直接投资，这一点在后面的例子会有体现。
 
 ![Delta And Price](imgs/uniswap-v3-delta-neutral_2.png)
@@ -94,43 +101,57 @@ Vup--添加流动性-->VLP
 
 1. 将初始资金按价值分为两份U1和U2。
 2. 将U2抵押到AAVE。
-3. 从AAVE借出ETH，价值为$ V_{EB} $
-4. 将$ V_{EB} $ 在分为两份，其中一份准备添加流动性，
+3. 从AAVE借出ETH，价值为 $V_{EB}$
+4. 将 $V_{EB}$  在分为两份，其中一份准备添加流动性，
 5. 另一部分兑换成USDC(UC)，和U1一起，组成UP，添加流动性，设置UC的目的是添加一个控制量，确保整个流程有解。
 6.  使用UP和EP两部分资金添加流动性。
 
 上面的流程必须满足一些资金关系，最显而易见的初始资金的划分关系
+
 $$
 V_{U1} + V_{U2} = 1
 $$
+
 然后是借款关系，在这里，我们假定AAVE的借款系数是α，这个系数可以看作一个常数。应该小于AAVE的最大可借系数(LTV)，避免因为价格波动导致清算。这里的资金价值关系应满足: 
+
 $$
 α \times V_{U2} = V_{EB} \\
 V_{EB} = V_{UC} + V_{EP}
 $$
+
 还有一个重要的关系是流动性的关系。经过推算，在限定了做市上下界的情况下，两种代币的价值比例必须满足下面的关系: 
+
 $$
 \frac{V_{EP}}{V_{UP}} = \frac {1-\frac{1}{\sqrt{H}}} {1-\sqrt{L}}
 $$
+
 最后，最重要的是Delta的关系，我们在上面求出了流动性的Delta，并且知道借贷的Delta是-1，那么考虑资金的价值，可以得到下面的公式: 
+
 $$
 V_{LP} \times \frac{\partial V}{\partial P} - V_{EB} = 0 \\
 (V_{UP} + V_{EP}) \times \frac{\partial V}{\partial P} - V_{EB} = 0 \\
 $$
+
 将流动性的Delta展开，可以得到
+
 $$
 (V_{UP} + V_{EP}) \times\frac{1}{2-\frac{1}{\sqrt{H}}-\sqrt{L}} \times (1-\frac{1}{\sqrt{H}}) - V_{EB} =0
 $$
+
 由此，将上面的公式整理一下，我们可以得到
+
 $$
+\begin{cases}
 V_{U1} + V_{U2} = 1 \\
 \frac{V_{EP}}{V_{UP}} = \frac {1-\frac{1}{\sqrt{H}}} {1-\sqrt{L}} \\
 (V_{UP} + V_{EP}) \times\frac{1}{2-\frac{1}{\sqrt{H}}-\sqrt{L}} \times (1-\frac{1}{\sqrt{H}}) - V_{EB} =0 \\
 V_{U1} + V_{UC} = V_{UP} \\
  V_{EB} = V_{UC} + V_{EP} \\
 α \times V_{U2} = V_{EB} \\
-0 < V_{U1},V_{U2},V_{EB}, V_{UC}, V_{EP},V_{UP} < 1
+0 < V_{U1},V_{U2},V_{EB}, V_{UC}, V_{EP},V_{UP} < 1 \\
+\end{cases}
 $$
+
 在已知H和L的情况下，我们可以求出每部分的资金分配。例如，在H=1.1，L=0.9，借款系数为0.7的时候，资金分配如下: 
 
 ```mermaid
